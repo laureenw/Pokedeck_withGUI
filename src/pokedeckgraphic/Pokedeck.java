@@ -18,6 +18,8 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Random;
 
+import javax.swing.JMenu;
+
 /**
  * class Pokedeck : responsible for processing the data
  * private static : related to the class, visible only by the class
@@ -44,6 +46,8 @@ public class Pokedeck {
 	private static Object cardUpdate;
 	private static int numCardSearch;
 	private static String nameCardSearch;
+	private static String pokemon_type = "";
+	private static String pokemon_type_search;
 
 	public Pokedeck() {
 		// TODO Auto-generated constructor stub
@@ -65,8 +69,9 @@ public class Pokedeck {
 		Pokedeck.numCard = numCard;
 	}
 	
-	public static void setNameCard(String nameCard) {
+	public static void setNameCard(String nameCard, String pokemon_type) {
 		Pokedeck.nameCard = nameCard;
+		Pokedeck.pokemon_type = pokemon_type;
 	}
 	
 	public static Card getMyCard() {
@@ -87,6 +92,10 @@ public class Pokedeck {
 	
 	public static void setNameCardSearch(String nameCardSearch) {
 		Pokedeck.nameCardSearch = nameCardSearch;
+	}
+	
+	public void setPokemonTypeSearch(String pokemon_type_search) {
+		Pokedeck.pokemon_type_search = pokemon_type_search;
 	}
 	
 	/**
@@ -134,7 +143,7 @@ public class Pokedeck {
 	 */
 	public static void addCard() {		
 		numCard = 1 + random.nextInt(1000 - 0);
-		collectCard.add(new Card(nameCard, numCard));
+		collectCard.add(new Card(nameCard, numCard, pokemon_type));
 		for (int i = 0; i < collectCard.size(); i++) {
 			myCard = collectCard.get(i);
 		}
@@ -163,7 +172,7 @@ public class Pokedeck {
 	public static void modifyCard() {
 		for (int i = 0; i < collectCard.size(); i++) {
 			if (collectCard.get(i).toString().contains(Integer.toString(numCard))) {
-				cardUpdate = collectCard.set(i, new Card(nameCard, numCard));
+				cardUpdate = collectCard.set(i, new Card(nameCard, numCard, pokemon_type));
 			}
 		}
 	}
@@ -176,7 +185,7 @@ public class Pokedeck {
 	 * @return 
 	 */
 	public static boolean searchCard() {
-		if (collectCard.toString().contains(new Card(nameCardSearch, numCardSearch).toString())) {
+		if (collectCard.toString().contains(new Card(nameCardSearch, numCardSearch, pokemon_type_search).toString())) {
 			return true;
 		} else {
 			return false;

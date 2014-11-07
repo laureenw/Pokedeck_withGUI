@@ -5,8 +5,12 @@
 package pokedeckgraphic;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
 import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Graphics;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -17,7 +21,9 @@ import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -44,6 +50,8 @@ public class PokedeckUI {
 	String nameCard = "";
 	int numCardSearch;
 	String nameCardSearch;
+	String pokemon_type = "";
+	String pokemon_type_search;
 	
 	//window
 	JFrame window;
@@ -69,6 +77,8 @@ public class PokedeckUI {
 	JPanel button_panel;
 	JPanel file_panel;
 	//elements addCard panel
+	JComboBox pokemon_types_combo;
+	JLabel pokemon_type_label;
 	JTextField cardname_field;
 	JLabel cardname_label;
 	JLabel card;
@@ -83,6 +93,8 @@ public class PokedeckUI {
 	JPanel button_removecardpanel;
 	JPanel card_removecardpanel;
 	//elements modifyCard panel
+	JComboBox pokemon_types_combo_modif;
+	JLabel pokemon_type_label_modif;
 	JTextField modifycard_field;
 	JLabel modifycard_label;
 	JLabel cardmodify;
@@ -92,6 +104,8 @@ public class PokedeckUI {
 	JPanel button_modifycardpanel;
 	JPanel card_modifycardpanel;
 	//elements searchCard panel
+	JComboBox pokemon_types_combo_search;
+	JLabel pokemon_type_label_search;
 	JTextField searchnumcard_field;
 	JLabel searchnumcard_label;
 	JTextField searchnamecard_field;
@@ -182,6 +196,27 @@ public class PokedeckUI {
 			public void actionPerformed(ActionEvent e) {
 					cardname_label = new JLabel("Card name");
 					cardname_field = new JTextField(10);
+					pokemon_type_label = new JLabel("Choose a pokemon type");
+					pokemon_types_combo = new JComboBox();
+					pokemon_types_combo.addItem(""+PokemonType.grass);
+					pokemon_types_combo.addItem(""+PokemonType.fire);
+					pokemon_types_combo.addItem(""+PokemonType.water);
+					pokemon_types_combo.addItem(""+PokemonType.lightning);
+					pokemon_types_combo.addItem(""+PokemonType.psychic);
+					pokemon_types_combo.addItem(""+PokemonType.fighting);
+					pokemon_types_combo.addItem(""+PokemonType.darkness);
+					pokemon_types_combo.addItem(""+PokemonType.metal);
+					pokemon_types_combo.addItem(""+PokemonType.fairy);
+					pokemon_types_combo.addItem(""+PokemonType.dragon);
+					pokemon_types_combo.addItem(""+PokemonType.colorless);
+					pokemon_types_combo.addActionListener(new java.awt.event.ActionListener() {
+
+						@Override
+						public void actionPerformed(ActionEvent e) {
+							pokemon_type = String.valueOf(pokemon_types_combo.getSelectedItem());							
+						}
+						
+					});
 					card = new JLabel("Your card : ");
 					addCardbutton = new JButton("Add");
 					addCardbutton.addActionListener(new java.awt.event.ActionListener() {
@@ -189,9 +224,9 @@ public class PokedeckUI {
 						public void actionPerformed(ActionEvent e) {
 							nameCard = cardname_field.getText();
 							if (pokedeck.getCollectCard().toString().contains(nameCard)) {
-								card.setText("Your collection already contains the name card, please enter again");
+								card.setText("Your collection already contains\n the name card, please enter again");
 							} else {
-								pokedeck.setNameCard(nameCard);
+								pokedeck.setNameCard(nameCard, pokemon_type);
 								pokedeck.addCard();
 								card.setText("Your card : " + (cardname_field.getText() == null ? "" : pokedeck.getMyCard()));
 								pokedeck.writeCollectCardInFile();	
@@ -202,6 +237,8 @@ public class PokedeckUI {
 				addCardPanel = new JPanel();
 				addCardPanel.add(cardname_label);
 				addCardPanel.add(cardname_field);
+				addCardPanel.add(pokemon_type_label);
+				addCardPanel.add(pokemon_types_combo);
 				button_addcardpanel = new JPanel(new FlowLayout());
 				card_addcardpanel = new JPanel(new FlowLayout());
 				button_addcardpanel.add(addCardbutton);
@@ -264,6 +301,27 @@ public class PokedeckUI {
 					modifycard_field = new JTextField(10);
 					modifycardname_label = new JLabel("New card name : ");
 					modifycardname_field = new JTextField(10);
+					pokemon_type_label_modif = new JLabel("Choose a new pokemon type");
+					pokemon_types_combo_modif = new JComboBox();
+					pokemon_types_combo_modif.addItem(""+PokemonType.grass);
+					pokemon_types_combo_modif.addItem(""+PokemonType.fire);
+					pokemon_types_combo_modif.addItem(""+PokemonType.water);
+					pokemon_types_combo_modif.addItem(""+PokemonType.lightning);
+					pokemon_types_combo_modif.addItem(""+PokemonType.psychic);
+					pokemon_types_combo_modif.addItem(""+PokemonType.fighting);
+					pokemon_types_combo_modif.addItem(""+PokemonType.darkness);
+					pokemon_types_combo_modif.addItem(""+PokemonType.metal);
+					pokemon_types_combo_modif.addItem(""+PokemonType.fairy);
+					pokemon_types_combo_modif.addItem(""+PokemonType.dragon);
+					pokemon_types_combo_modif.addItem(""+PokemonType.colorless);
+					pokemon_types_combo_modif.addActionListener(new java.awt.event.ActionListener() {
+
+						@Override
+						public void actionPerformed(ActionEvent e) {
+							pokemon_type = String.valueOf(pokemon_types_combo_modif.getSelectedItem());							
+						}
+						
+					});
 					cardmodify = new JLabel("Your card : ");
 					modifyCardbutton = new JButton("Update");
 					modifyCardbutton.addActionListener(new java.awt.event.ActionListener() {
@@ -272,9 +330,9 @@ public class PokedeckUI {
 							numCard = Integer.parseInt(modifycard_field.getText());
 							pokedeck.setNumCard(numCard);
 							nameCard = modifycardname_field.getText();
-							pokedeck.setNameCard(nameCard);
+							pokedeck.setNameCard(nameCard, pokemon_type);
 							pokedeck.modifyCard();
-							cardmodify.setText("Your card : " + (modifycard_field.getText() == null ? "" : pokedeck.getCardUpdate() + " has been updated in : "+numCard+" "+nameCard));
+							cardmodify.setText("Your card : " + (modifycard_field.getText() == null ? "" : pokedeck.getCardUpdate() + " has been updated in : "+numCard+" "+nameCard+" "+pokemon_type));
 							pokedeck.writeCollectCardInFile();	
 						}
 					});
@@ -284,6 +342,8 @@ public class PokedeckUI {
 				modifyCardPanel.add(modifycard_field);
 				modifyCardPanel.add(modifycardname_label);
 				modifyCardPanel.add(modifycardname_field);
+				modifyCardPanel.add(pokemon_type_label_modif);
+				modifyCardPanel.add(pokemon_types_combo_modif);
 				button_modifycardpanel = new JPanel(new FlowLayout());
 				card_modifycardpanel = new JPanel(new FlowLayout());
 				button_modifycardpanel.add(modifyCardbutton);
@@ -299,7 +359,7 @@ public class PokedeckUI {
 				
 			}
 		});
-		
+				
 		//seeCollection panel
 		seeCollection.addActionListener(new java.awt.event.ActionListener() {
 			@Override
@@ -308,11 +368,10 @@ public class PokedeckUI {
 				pokedeck.readCollectCardInFile();
 				collection = new JLabel("Your collection : ");
 				collection.setText("Your collection : " + pokedeck.getCollectCard());
-				
-														
+
 				seeCollectionPanel = new JPanel();
 				seeCollectionPanel.add(collection);
-								
+				
 				window.getContentPane().removeAll();
 				window.getContentPane().add(seeCollectionPanel, BorderLayout.PAGE_START);
 				
@@ -330,6 +389,27 @@ public class PokedeckUI {
 					searchnumcard_field = new JTextField(10);
 					searchnamecard_label = new JLabel("Enter card name you want to search");
 					searchnamecard_field = new JTextField(10);
+					pokemon_type_label_search = new JLabel("Choose a pokemon type you want to search");
+					pokemon_types_combo_search = new JComboBox();
+					pokemon_types_combo_search.addItem(""+PokemonType.grass);
+					pokemon_types_combo_search.addItem(""+PokemonType.fire);
+					pokemon_types_combo_search.addItem(""+PokemonType.water);
+					pokemon_types_combo_search.addItem(""+PokemonType.lightning);
+					pokemon_types_combo_search.addItem(""+PokemonType.psychic);
+					pokemon_types_combo_search.addItem(""+PokemonType.fighting);
+					pokemon_types_combo_search.addItem(""+PokemonType.darkness);
+					pokemon_types_combo_search.addItem(""+PokemonType.metal);
+					pokemon_types_combo_search.addItem(""+PokemonType.fairy);
+					pokemon_types_combo_search.addItem(""+PokemonType.dragon);
+					pokemon_types_combo_search.addItem(""+PokemonType.colorless);
+					pokemon_types_combo_search.addActionListener(new java.awt.event.ActionListener() {
+
+						@Override
+						public void actionPerformed(ActionEvent e) {
+							pokemon_type_search = String.valueOf(pokemon_types_combo_search.getSelectedItem());							
+						}
+						
+					});
 					cardsearch = new JLabel("Your card : ");
 					searchCardbutton = new JButton("Search");
 					searchCardbutton.addActionListener(new java.awt.event.ActionListener() {
@@ -339,10 +419,12 @@ public class PokedeckUI {
 							pokedeck.setNumCardSearch(numCardSearch);
 							nameCardSearch = searchnamecard_field.getText();
 							pokedeck.setNameCardSearch(nameCardSearch);
+							pokemon_type_search = String.valueOf(pokemon_types_combo_search.getSelectedItem());	
+							pokedeck.setPokemonTypeSearch(pokemon_type_search);
 							if (pokedeck.searchCard() == true) {
-								cardsearch.setText("Your card : "+ (searchnumcard_field.getText() == null && searchnamecard_field.getText() == null ? "" : new Card(nameCardSearch, numCardSearch).toString()));
+								cardsearch.setText("Your card : "+ (searchnumcard_field.getText() == null && searchnamecard_field.getText() == null ? "" : new Card(nameCardSearch, numCardSearch, pokemon_type_search).toString()));
 							} else {
-								cardsearch.setText("Your collection does not contain card : "+new Card(nameCardSearch, numCardSearch).toString());
+								cardsearch.setText("Your collection does not contain card : "+new Card(nameCardSearch, numCardSearch, pokemon_type_search).toString());
 							}	
 						}
 					});
@@ -352,6 +434,8 @@ public class PokedeckUI {
 				searchCardPanel.add(searchnumcard_field);
 				searchCardPanel.add(searchnamecard_label);
 				searchCardPanel.add(searchnamecard_field);
+				searchCardPanel.add(pokemon_type_label_search);
+				searchCardPanel.add(pokemon_types_combo_search);
 				button_searchcardpanel = new JPanel(new FlowLayout());
 				card_searchcardpanel = new JPanel(new FlowLayout());
 				button_searchcardpanel.add(searchCardbutton);

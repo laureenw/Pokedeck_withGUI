@@ -17,10 +17,12 @@ public class Card implements Serializable{
 
 	private int num;
 	private String name;
+	private String pokemon_type;
 	
-	public Card(String name, int num) {
+	public Card(String name, int num, String pokemon_type) {
 		this.num = num;
 		this.name = name;
+		this.pokemon_type = pokemon_type;
 	}
 	
 	/** 
@@ -31,7 +33,7 @@ public class Card implements Serializable{
 	}
 	
 	public String toString(){
-    	String S = this.num+" "+this.name;
+    	String S = this.num+" "+this.name+" "+this.pokemon_type;
     	return S;
     }
 }
