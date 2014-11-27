@@ -5,25 +5,20 @@
 package pokedeckgraphic;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Container;
-import java.awt.Dimension;
+import java.awt.CardLayout;
 import java.awt.FlowLayout;
-import java.awt.Graphics;
-import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.WindowEvent;
-import java.io.FileOutputStream;
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
-import java.util.ArrayList;
 import java.util.Scanner;
 
-import javax.swing.BorderFactory;
+import javax.imageio.ImageIO;
+import javax.swing.AbstractAction;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -42,7 +37,7 @@ import javax.swing.JTextField;
  * Sring nameCardSearch : name of card searched
  * user_choice : related to the user choice
  */
-public class PokedeckUI {
+public class PokedeckUI extends JFrame{
 	Pokedeck pokedeck = new Pokedeck();
 	Scanner scanner = new Scanner(System.in);
 	Player p;
@@ -52,6 +47,9 @@ public class PokedeckUI {
 	String nameCardSearch;
 	String pokemon_type = "";
 	String pokemon_type_search;
+	String pokemon_image;
+	String file_pokemon;
+	BufferedImage image = null;
 	
 	//window
 	JFrame window;
@@ -85,6 +83,9 @@ public class PokedeckUI {
 	JButton addCardbutton;
 	JPanel button_addcardpanel;
 	JPanel card_addcardpanel;
+	JLabel choice_image_label;
+	JButton choice_image_button;
+	JFileChooser chooser;
 	//elements removeCard panel
 	JTextField removecard_field;
 	JLabel removecard_label;
@@ -120,7 +121,13 @@ public class PokedeckUI {
 	JLabel uploadcollection;
 	//elements seeCollection panel
 	JLabel collection;
-
+	JButton previous;
+	JButton next;
+	
+	public BufferedImage getImage() {
+		return image;
+	}
+	
 	/**
 	 * request the player name
 	 * initializing a new player with name
@@ -128,15 +135,6 @@ public class PokedeckUI {
 	 * while stop different to false, display menu
 	 */
 	public void start() {
-		/*boolean stop = false;
-		System.out.println("Enter your name : ");
-		String playerName = scanner.next();
-		p = new Player(playerName);
-		pokedeck.setP(p);
-		while (!stop) {
-			UserChoice choice = user_menu_choice();
-			stop = pick_choice(choice);
-		}*/
 		window = new JFrame();
 		principalPanel = new JPanel();
 		login = new BorderLayout();
@@ -217,6 +215,22 @@ public class PokedeckUI {
 						}
 						
 					});
+					
+					choice_image_label = new JLabel("Choose an image");
+					choice_image_button = new JButton("Loading");
+					choice_image_button.addActionListener(new java.awt.event.ActionListener() {
+
+						@Override
+						public void actionPerformed(ActionEvent e) {
+							chooser = new JFileChooser(".");
+							chooser.setAccessory(new FilePreview(chooser));
+							chooser.showOpenDialog(null);
+							pokemon_image = chooser.getSelectedFile().toString();
+							//pokemon_image = pokemon_image.replace(pokemon_image.substring(0, 67), "");
+						}
+						
+					});
+						
 					card = new JLabel("Your card : ");
 					addCardbutton = new JButton("Add");
 					addCardbutton.addActionListener(new java.awt.event.ActionListener() {
@@ -226,7 +240,7 @@ public class PokedeckUI {
 							if (pokedeck.getCollectCard().toString().contains(nameCard)) {
 								card.setText("Your collection already contains\n the name card, please enter again");
 							} else {
-								pokedeck.setNameCard(nameCard, pokemon_type);
+								pokedeck.setNameCard(nameCard, pokemon_type, pokemon_image);
 								pokedeck.addCard();
 								card.setText("Your card : " + (cardname_field.getText() == null ? "" : pokedeck.getMyCard()));
 								pokedeck.writeCollectCardInFile();	
@@ -239,6 +253,8 @@ public class PokedeckUI {
 				addCardPanel.add(cardname_field);
 				addCardPanel.add(pokemon_type_label);
 				addCardPanel.add(pokemon_types_combo);
+				addCardPanel.add(choice_image_label);
+				addCardPanel.add(choice_image_button);
 				button_addcardpanel = new JPanel(new FlowLayout());
 				card_addcardpanel = new JPanel(new FlowLayout());
 				button_addcardpanel.add(addCardbutton);
@@ -330,7 +346,7 @@ public class PokedeckUI {
 							numCard = Integer.parseInt(modifycard_field.getText());
 							pokedeck.setNumCard(numCard);
 							nameCard = modifycardname_field.getText();
-							pokedeck.setNameCard(nameCard, pokemon_type);
+							pokedeck.setNameCard(nameCard, pokemon_type, pokemon_image);
 							pokedeck.modifyCard();
 							cardmodify.setText("Your card : " + (modifycard_field.getText() == null ? "" : pokedeck.getCardUpdate() + " has been updated in : "+numCard+" "+nameCard+" "+pokemon_type));
 							pokedeck.writeCollectCardInFile();	
@@ -367,14 +383,55 @@ public class PokedeckUI {
 				
 				pokedeck.readCollectCardInFile();
 				collection = new JLabel("Your collection : ");
-				collection.setText("Your collection : " + pokedeck.getCollectCard());
-
+				collection.setText("Your collection : " + pokedeck.getCollectCard());				
+				
 				seeCollectionPanel = new JPanel();
 				seeCollectionPanel.add(collection);
+								
+				final JPanel cards = new JPanel(new CardLayout());
+				final JPanel images = new JPanel(new CardLayout());
+							
+				for (int i=0; i < pokedeck.getCollectCard().size(); i++) {
+					CardPanel p = new CardPanel(""+pokedeck.getCollectCard().get(i));
+					cards.add(p);
+					file_pokemon = pokedeck.getCollectCard().get(i).toString();
+					file_pokemon = file_pokemon.substring(file_pokemon.indexOf("pokedeckgraphic")+16);
+					ImagePanel im = null;
+					try {
+						im = new ImagePanel(ImageIO.read(this.getClass().getResource(""+file_pokemon)));
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					}
+					images.add(im);
+				}
 				
+				JPanel control = new JPanel();
+		        control.add(new JButton(new AbstractAction("\u22b2Prev") {
+
+		            @Override
+		            public void actionPerformed(ActionEvent e) {
+		                CardLayout cl = (CardLayout) cards.getLayout();
+		                cl.previous(cards);
+		                CardLayout c2 = (CardLayout) images.getLayout();
+		                c2.previous(images);
+		            }
+		        }));
+		        control.add(new JButton(new AbstractAction("Next\u22b3") {
+
+		            @Override
+		            public void actionPerformed(ActionEvent e) {
+		                CardLayout cl = (CardLayout) cards.getLayout();
+		                cl.next(cards);
+		                CardLayout c2 = (CardLayout) images.getLayout();
+		                c2.next(images);
+		            }
+		        }));
+		       
 				window.getContentPane().removeAll();
-				window.getContentPane().add(seeCollectionPanel, BorderLayout.PAGE_START);
-				
+				//window.getContentPane().add(seeCollectionPanel, BorderLayout.PAGE_START);
+				window.getContentPane().add(cards, BorderLayout.PAGE_START);
+				window.getContentPane().add(images, BorderLayout.CENTER);
+				window.add(control, BorderLayout.SOUTH);
 				window.getRootPane().repaint();
 				window.getRootPane().revalidate();
 						
@@ -422,9 +479,9 @@ public class PokedeckUI {
 							pokemon_type_search = String.valueOf(pokemon_types_combo_search.getSelectedItem());	
 							pokedeck.setPokemonTypeSearch(pokemon_type_search);
 							if (pokedeck.searchCard() == true) {
-								cardsearch.setText("Your card : "+ (searchnumcard_field.getText() == null && searchnamecard_field.getText() == null ? "" : new Card(nameCardSearch, numCardSearch, pokemon_type_search).toString()));
+								//cardsearch.setText("Your card : "+ (searchnumcard_field.getText() == null && searchnamecard_field.getText() == null ? "" : new Card(nameCardSearch, numCardSearch, pokemon_type_search).toString()));
 							} else {
-								cardsearch.setText("Your collection does not contain card : "+new Card(nameCardSearch, numCardSearch, pokemon_type_search).toString());
+								//cardsearch.setText("Your collection does not contain card : "+new Card(nameCardSearch, numCardSearch, pokemon_type_search).toString());
 							}	
 						}
 					});
@@ -502,5 +559,4 @@ public class PokedeckUI {
 		window.pack();
 	    window.setVisible(true);
 	}
-
 }

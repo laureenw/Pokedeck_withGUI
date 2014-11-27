@@ -6,6 +6,7 @@ package pokedeckgraphic;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -48,9 +49,10 @@ public class Pokedeck {
 	private static String nameCardSearch;
 	private static String pokemon_type = "";
 	private static String pokemon_type_search;
+	private static String pokemon_image;
 
 	public Pokedeck() {
-		// TODO Auto-generated constructor stub
+		
 	}
 	
 	public static void setP(Player p) {
@@ -69,9 +71,10 @@ public class Pokedeck {
 		Pokedeck.numCard = numCard;
 	}
 	
-	public static void setNameCard(String nameCard, String pokemon_type) {
+	public static void setNameCard(String nameCard, String pokemon_type, String pokemon_image) {
 		Pokedeck.nameCard = nameCard;
 		Pokedeck.pokemon_type = pokemon_type;
+		Pokedeck.pokemon_image = pokemon_image;
 	}
 	
 	public static Card getMyCard() {
@@ -143,7 +146,7 @@ public class Pokedeck {
 	 */
 	public static void addCard() {		
 		numCard = 1 + random.nextInt(1000 - 0);
-		collectCard.add(new Card(nameCard, numCard, pokemon_type));
+		collectCard.add(new Card(nameCard, numCard, pokemon_type, pokemon_image));
 		for (int i = 0; i < collectCard.size(); i++) {
 			myCard = collectCard.get(i);
 		}
@@ -172,7 +175,7 @@ public class Pokedeck {
 	public static void modifyCard() {
 		for (int i = 0; i < collectCard.size(); i++) {
 			if (collectCard.get(i).toString().contains(Integer.toString(numCard))) {
-				cardUpdate = collectCard.set(i, new Card(nameCard, numCard, pokemon_type));
+				cardUpdate = collectCard.set(i, new Card(nameCard, numCard, pokemon_type, pokemon_image));
 			}
 		}
 	}
@@ -185,7 +188,7 @@ public class Pokedeck {
 	 * @return 
 	 */
 	public static boolean searchCard() {
-		if (collectCard.toString().contains(new Card(nameCardSearch, numCardSearch, pokemon_type_search).toString())) {
+		if (collectCard.toString().contains(new Card(nameCardSearch, numCardSearch, pokemon_type_search, pokemon_image).toString())) {
 			return true;
 		} else {
 			return false;
